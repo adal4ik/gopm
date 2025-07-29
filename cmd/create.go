@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"gopm/internal/archiver"
 	"gopm/internal/config"
-	"gopm/internal/files" // <-- Импортируем новый пакет
+	"gopm/internal/files"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -30,21 +31,27 @@ var createCmd = &cobra.Command{
 			if err != nil {
 				log.Fatalf("Error finding files for target '%s': %v", target.Path, err)
 			}
-
-			if len(foundFiles) > 0 {
-				fmt.Printf("Found %d file(s) for target '%s':\n", len(foundFiles), target.Path)
-				for _, f := range foundFiles {
-					fmt.Printf("  - %s\n", f)
-				}
-				allFilesToPack = append(allFilesToPack, foundFiles...)
-			} else {
-				fmt.Printf("No files found for target '%s'\n", target.Path)
-			}
+			allFilesToPack = append(allFilesToPack, foundFiles...)
 		}
 
-		fmt.Println("------------------------------------")
+		if len(allFilesToPack) == 0 {
+			log.Println("No files found to pack. Exiting.")
+			return
+		}
+
 		fmt.Printf("Total files to be packed: %d\n", len(allFilesToPack))
-		fmt.Println("TODO: Archive these files into a .tar.gz package.")
+		fmt.Println("------------------------------------")
+
+		archiveName := fmt.Sprintf("%s-%s.tar.gz", cfg.Name, cfg.Version)
+		fmt.Printf("Creating archive: %s\n", archiveName)
+
+		if err := archiver.Create(archiveName, allFilesToPack); err != nil {
+			log.Fatalf("Failed to create archive: %v", err)
+		}
+
+		fmt.Println("Archive created successfully!")
+		fmt.Println("------------------------------------")
+		fmt.Println("TODO: Upload this archive to the SSH server.")
 	},
 }
 
