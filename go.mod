@@ -3,6 +3,7 @@ module gopm
 go 1.24.3
 
 require (
+	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/pkg/sftp v1.13.9
 	github.com/spf13/cobra v1.9.1
 	golang.org/x/crypto v0.40.0

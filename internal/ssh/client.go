@@ -73,3 +73,20 @@ func (c *Client) UploadFile(localPath, remoteDir string) error {
 
 	return nil
 }
+
+func (c *Client) ListFiles(remoteDir string) ([]string, error) {
+	// sftpClient.ReadDir возвращает []os.FileInfo
+	fileInfos, err := c.sftpClient.ReadDir(remoteDir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read remote directory %s: %w", remoteDir, err)
+	}
+
+	var fileNames []string
+	for _, info := range fileInfos {
+		if !info.IsDir() {
+			fileNames = append(fileNames, info.Name())
+		}
+	}
+
+	return fileNames, nil
+}
