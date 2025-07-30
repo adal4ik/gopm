@@ -5,7 +5,6 @@ import (
 	"fmt"
 )
 
-// PacketConfig представляет полную структуру файла packet.json
 type PacketConfig struct {
 	Name         string             `json:"name"`
 	Version      string             `json:"ver"`
@@ -13,30 +12,32 @@ type PacketConfig struct {
 	Dependencies []PacketDependency `json:"packets"`
 }
 
-// PacketDependency представляет зависимость от другого пакета
 type PacketDependency struct {
 	Name    string `json:"name"`
 	Version string `json:"ver"`
 }
 
-// Target представляет одну цель для архивации.
-// Это наша "универсальная" структура, которая может хранить и строку, и объект.
+type UpdateConfig struct {
+	Packages []PackageRequest `json:"packages"`
+}
+
+type PackageRequest struct {
+	Name    string `json:"name"`
+	Version string `json:"ver,omitempty"`
+}
+
 type Target struct {
 	Path    string
 	Exclude string
 }
 
-// UnmarshalJSON - это специальный метод, который "учит" Go,
-// как правильно парсить наше поле "targets" со смешанными типами.
 func (t *Target) UnmarshalJSON(data []byte) error {
-	// Сначала пробуем распарсить как простую строку
 	var simplePath string
 	if err := json.Unmarshal(data, &simplePath); err == nil {
 		t.Path = simplePath
 		return nil
 	}
 
-	// Если не получилось, пробуем распарсить как объект
 	var complexTarget struct {
 		Path    string `json:"path"`
 		Exclude string `json:"exclude"`
