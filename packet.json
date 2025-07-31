@@ -1,12 +1,1 @@
-{
-  "name": "my-test-packet",
-  "ver": "1.0.0",
-  "targets": [
-    "./files_to_pack/images/*.jpg",
-    {
-      "path": "./files_to_pack/docs/*",
-      "exclude": "*.tmp"
-    }
-  ],
-  "packets": []
-}
+{ "name": "my-app-config", "ver": "1.2.0", "targets": [ "./files_to_pack/images/*.jpg", {"path": "./files_to_pack/docs/*", "exclude": "*.tmp"} ] }

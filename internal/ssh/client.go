@@ -75,7 +75,6 @@ func (c *Client) UploadFile(localPath, remoteDir string) error {
 }
 
 func (c *Client) ListFiles(remoteDir string) ([]string, error) {
-	// sftpClient.ReadDir возвращает []os.FileInfo
 	fileInfos, err := c.sftpClient.ReadDir(remoteDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read remote directory %s: %w", remoteDir, err)
@@ -89,4 +88,28 @@ func (c *Client) ListFiles(remoteDir string) ([]string, error) {
 	}
 
 	return fileNames, nil
+}
+
+func (c *Client) DownloadFile(remotePath, localDir string) (string, error) {
+	remoteFile, err := c.sftpClient.Open(remotePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open remote file %s: %w", remotePath, err)
+	}
+	defer remoteFile.Close()
+
+	localFileName := filepath.Base(remotePath)
+	localFilePath := filepath.Join(localDir, localFileName)
+
+	localFile, err := os.Create(localFilePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to create local file %s: %w", localFilePath, err)
+	}
+	defer localFile.Close()
+
+	_, err = io.Copy(localFile, remoteFile)
+	if err != nil {
+		return "", fmt.Errorf("failed to copy content from remote file: %w", err)
+	}
+
+	return localFilePath, nil
 }
